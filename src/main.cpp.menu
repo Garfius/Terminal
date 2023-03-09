@@ -1,0 +1,86 @@
+/*
+#define terminal_ST7735_display
+#define terminal_SH1106_display
+*/
+#include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <menuOptionsA.h>
+#include <Adafruit_SH1106_kbv.h>
+#include <Adafruit_ST7735.h>
+//#include <TtyAdafruitSH1106.h>
+#include <TtyAdafruitST7735.h>
+#include <keyboards.h>
+#define LED_TEST p6
+
+//MbedSPI spi = MbedSPI(6, 5, 4);// pi pico SPI
+//compiling in C++11 mode.
+
+//Adafruit_SH1106_kbv displayAAA(128, 64,&SPI,7, 8, 6);// for ATmega328p
+//Adafruit_SH1106_kbv displayAAA(128, 64,&SPI,p15,p13,p14);// for Raspberry pi pico 
+
+//Adafruit_ST7735 displayAAA = Adafruit_ST7735(6, 7, 8); //4 Atmega328P
+Adafruit_ST7735 displayAAA = Adafruit_ST7735(&SPI,p14, p15, p13);// font amplada=6 alçada=8, amplada text = 26, alçada=16?, rotacio=1
+
+//TtyAdafruitSH1106 TTYS0_Display = TtyAdafruitSH1106(&displayAAA);// as parameter bc if else init() needed.
+TtyAdafruitST7735 TTYS0_Display = TtyAdafruitST7735(&displayAAA);// as parameter bc if else init() needed.
+
+IICTtyKeyboard TTYS0_Keyboard = IICTtyKeyboard();// keyboard is not as an argument bc at construction, Wire.begin() fails
+
+menu menuSystemOverTty = menu();
+// crea pantalles
+screen menuDisplay1 = screen();
+
+//---------opcions menu
+fesAlgo menuOption1 = fesAlgo(LED_TEST);
+fesAlgoAltre menuOption2 = fesAlgoAltre(LED_TEST);
+escriuPerPantalla menuOption3 = escriuPerPantalla();
+
+UART Serial2(p0, p1);
+void setup() {
+  Wire.begin();
+  SPI.begin();
+  Serial2.begin(57600);
+  Serial2.println("booting");
+  //display.drawChar(x*fontX, y*fontY, charArray[x][y], WHITE, BLACK, FONT_SIZE);
+  pinMode(LED_TEST, OUTPUT);
+
+  
+  menuOption3.userTty = &Serial2;
+  // build TTY interafce
+  
+  TTYS0_Display.keyboard = &TTYS0_Keyboard;// not as an argument bc at construction, Wire.begin() fails
+  
+  /*display.initR(INITR_GREENTAB);      //--------------------------------------passes per aqui, a veure si treus aixó del setup(){}, i POSA BE ELS PINS PER LA PICO!!
+  display.setRotation(1);
+  display.fillScreen(ST77XX_BLACK);
+  display.setCursor(0, 0);
+  display.setTextWrap(true);
+  display.setTextColor(ST77XX_WHITE);*/
+
+
+  TTYS0_Display.init();
+  
+  
+  // create the enu display
+  menuDisplay1.addMenuItem(&menuOption1);
+  menuDisplay1.addMenuItem(&menuOption2);
+  menuDisplay1.addMenuItem(&menuOption3);
+  strcpy(menuDisplay1.titol,"Menu llum");
+  strcpy(menuOption1.text,"Encen llum");
+  strcpy(menuOption2.text,"Apaga llum");
+  strcpy(menuOption3.text,"Loopback -> q");
+  // connect user interface tty Stream, and add the main menu
+  menuSystemOverTty.userTty = &TTYS0_Display;
+  //menuSystemOverTty.userTty = &Serial2;
+  menuSystemOverTty.addscreen(&menuDisplay1);
+  
+  menuSystemOverTty.show();//init
+}
+
+void loop(void) {
+  menuSystemOverTty.run();  
+}
+
+
+

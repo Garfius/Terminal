@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {///mnt/c/Users/gerard/Desktop/arduino/terminal/lib/finta/menu.cpp
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/mnt/d/temp/Gdrive/Creacions_personals/terminal/lib/finta/menu.h",
+                "/mnt/d/temp/Gdrive/Creacions_personals/terminal/lib/finta/**",
+                "/mnt/d/temp/Gdrive/Creacions_personals/terminal/finta-linux/Lib/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "linux-gcc-x64"
+            //-std=c++11
+        }
+    ],
+    "version": 4
+}

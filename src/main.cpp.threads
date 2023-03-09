@@ -1,0 +1,35 @@
+#include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_SH1106_kbv.h>
+#include <Adafruit_ST7735.h>
+#include <pico/multicore.h> //https://raspberrypi.github.io/pico-sdk-doxygen/group__pico__multicore.html
+#include <stdio.h>
+#include <pthread.h>
+//#include "rtos/Thread.h"
+#include "rtos.h"
+//#include "mbed.h"
+#include "rtos/Thread.h"
+bool running;
+mbed::Callback<void()> blink() {
+       while (running) {
+            
+           delay(1000);
+       }
+ }
+mbed::Callback<void()> blink2() {
+       while (running) {
+            
+           delay(5000);
+       }
+ }
+rtos::Thread thread,thread2;
+void setup() {
+    thread.start(blink);
+    thread2.start(blink2);
+    delay(2000) ;
+      running = false;
+      thread.join();
+   
+}
+void loop(void) {}

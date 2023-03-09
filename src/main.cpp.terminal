@@ -1,0 +1,98 @@
+#include <Arduino.h>
+
+#include <SPI.h>
+#include <Wire.h>
+
+#include <menuOptionsA.h>
+#include <keyboards.h>
+
+#include <Adafruit_SH1106_kbv.h>
+//#include <TtyAdafruitSH1106.h>
+
+#include <Adafruit_ST7735.h>
+//#include <TtyAdafruitST7735.h>
+#include "mbed.h"
+#include <ILI9488.h>
+#include <TtyAdafruitILI9488.h>
+
+
+#include <pico/multicore.h> //https://raspberrypi.github.io/pico-sdk-doxygen/group__pico__multicore.html
+
+//Adafruit_ST7735 tft = Adafruit_ST7735(6, 7, 8); //Atmega329P 
+//Adafruit_ST7735 display = Adafruit_ST7735(&SPI,p14, p15, p13);// pi pico
+//Adafruit_SH1106_kbv display(128, 64,&SPI,p15,p13,p14);// for Raspberry pi pico 
+//TtyAdafruitSH1106 TTYS0_Display = TtyAdafruitSH1106(&display);// as parameter bc if else init() needed.
+
+//Adafruit_ST7735 displaycharTmp = Adafruit_ST7735(&SPI,p14, p15, p13);// font amplada=6 alçada=8, amplada text = 26, alçada=16?, rotacio=1
+//TtyAdafruitST7735 TTYS0_Display = TtyAdafruitST7735(&displaycharTmp);// as parameter bc if else init() needed.
+
+//ILI9488 tft = ILI9488(p14, p15, p13);
+TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
+TtyAdafruitILI9488 TTYS0_Display = TtyAdafruitILI9488(&tft);
+
+IICTtyKeyboard TTYS0_Keyboard = IICTtyKeyboard();// keyboard is not as an argument bc at construction, Wire.begin() fails
+
+UART Serial2(p0, p1);
+
+mbed::Callback<void()> tmp(){
+  while(true){
+    //std::ThisThread::sleep_for(1000);
+    TTYS0_Display.run();// refresh display via SPI if needed
+  }
+}
+rtos::Thread thread;
+void setup() {
+  Wire.begin();
+  //SPI.begin();
+  Serial2.begin(9600);
+  Serial.begin(57600);
+  /*tft.init();
+  tft.setRotation(3);
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE);
+  tft.setCursor(0, 0);
+  tft.print("capdeporc");
+  tft.drawChar('G',20,10);
+  delay(2000);*/
+  TTYS0_Display.keyboard = &TTYS0_Keyboard;
+ 
+  TTYS0_Display.init();// after spi+wire init done
+  TTYS0_Display.ttyDisplay->setTextColor(TFT_BLACK,TFT_WHITE);
+  TTYS0_Display.ttyDisplay->drawChar('a',0,0);
+  //TTYS0_Display.ttyDisplay->print("b");
+  TTYS0_Display.ttyDisplay->setTextColor(TFT_WHITE,TFT_BLACK);
+  TTYS0_Display.ttyDisplay->drawChar('c',10,10);
+  //TTYS0_Display.ttyDisplay->print("d");
+  pinMode(p6, OUTPUT);// overflow led hardware test
+  digitalWrite(p6, HIGH);
+  delay(1000);
+  digitalWrite(p6, LOW);
+  thread.start(tmp);
+}
+
+uint8_t charTmp;
+/// @brief  solucio: el array de pantalla s'ha d'actualitzar entre refresc i refresc, buffer de IIC
+/// @param  
+void loop(void) {
+    //TTYS0_Display.run();
+    /*
+    if(Serial.available()){
+        charTmp = Serial.read();
+    */
+    if(TTYS0_Display.available()){
+        charTmp = TTYS0_Display.read();
+        Serial2.write(charTmp);
+        Serial2.flush();
+    }
+    if(Serial2.available()){
+      if(Serial2.available() == SERIAL_BUFFER_SIZE)digitalWrite(p6, HIGH);
+        charTmp = Serial2.read();
+        TTYS0_Display.write(charTmp);
+        if(charTmp == '\e')charTmp = '|';
+        Serial.write(charTmp);
+        /*
+        */
+        
+    }
+}

@@ -1,0 +1,36 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.x": "cpp",
+			"*.tcc": "cpp",
+			"fstream": "cpp",
+			"iosfwd": "cpp",
+			"istream": "cpp",
+			"limits": "cpp",
+			"sstream": "cpp",
+			"streambuf": "cpp",
+			"ostream": "cpp",
+			"typeinfo": "cpp",
+			"unordered_map": "cpp",
+			"numeric": "cpp",
+			"thread": "cpp",
+			"mstd_mutex": "cpp",
+			"array": "cpp",
+			"forward_list": "cpp",
+			"string": "cpp",
+			"unordered_set": "cpp",
+			"memory": "cpp",
+			"optional": "cpp",
+			"string_view": "cpp",
+			"vector": "cpp",
+			"functional": "cpp",
+			"tuple": "cpp",
+			"glcdfont.c": "cpp"
+		}
+	}
+}

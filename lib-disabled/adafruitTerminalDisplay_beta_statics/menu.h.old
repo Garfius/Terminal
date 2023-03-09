@@ -1,0 +1,42 @@
+#include "terminalParser.h"
+// OutsideOfInternetEncryption -->OOIE Chat / Finta /Private Intellectual Property
+#ifndef __menu__
+#define __menu__
+
+#define allargadaTextMenu 25
+class menuOption{
+  public:
+    char text[allargadaTextMenu];
+    virtual void run();
+};
+
+#define maxOpcionsMenu 4
+class pantalla{
+  public: 
+    pantalla();
+    void addMenuItem(menuOption* menuItem);
+    char titol[allargadaTextMenu];
+    int totalMenuItems;
+    menuOption *menuItems[maxOpcionsMenu];
+};
+
+#define maxPantalles 3
+class menu : terminalParser{
+    char charTmp;    
+  public:
+    menu();
+    void run();
+    void show();
+    void clearScreen();
+    void cUP(int line,int column);
+    void cUU(unsigned int argc,int *argv);
+    void cUD(unsigned int argc,int *argv);
+    void cr();
+    void addPantalla(pantalla* screen);
+    bool exit;
+    int totalPantalles,pantallaActiva,selectedMenuItem;
+    terminalParser *userTty;
+    pantalla *pantalles[maxPantalles];
+};
+
+#endif

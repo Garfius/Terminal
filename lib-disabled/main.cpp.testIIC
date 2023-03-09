@@ -1,0 +1,40 @@
+// Clignotement de LED du Raspberry Pi Pico
+// https://tutoduino.fr/
+// Copyleft 2020
+   
+#include "Arduino.h"
+#define CARDKB_ADDR 0x5F
+#include <Wire.h>
+int tmp = 2;
+String test123 = "capdeporc";
+UART Serial2(p16, p17);
+
+
+void setup() {
+  // Declare la broche sur laquelle la LED est  
+  // reliee comme une sortie
+  Serial.begin(57600);
+  Serial2.begin(57600);
+  Serial.println("boot");
+  Serial2.println("boot");
+  pinMode(LED_BUILTIN, OUTPUT);
+  tmp = 3;
+  test123 = String(tmp);
+  
+  Wire.begin();
+}
+byte charFromSerial;
+int holas;
+void loop() {
+  Wire.requestFrom(CARDKB_ADDR, 1);
+  holas = Wire.available() ;
+  while (holas)
+  {
+   
+    charFromSerial = (byte)Wire.read();
+
+    if (charFromSerial != 0x00) {// lt=180,up=181,dn=182,rt=183,tab=\t, esc=\033,enter=\r,back=\b
+      Serial2.write(charFromSerial);
+    }
+  }
+}

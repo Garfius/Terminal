@@ -1,0 +1,84 @@
+#include "menu.h"
+#include <chrono>
+#include <iostream>
+using namespace std;
+
+void menuOption::run(){}
+
+pantalla::pantalla(){
+    totalMenuItems = 0;
+}
+
+void pantalla::addMenuItem(menuOption* menuItem){
+    if(totalMenuItems == maxOpcionsMenu)return;
+    menuItems[totalMenuItems] = menuItem;
+    totalMenuItems+=1;
+    
+}
+
+menu::menu(){
+    pantallaActiva = -1;
+    totalPantalles = 0;
+    exit = false;
+}
+
+void menu::show(){
+    if(totalPantalles == 0)return;// safe
+    if(this->pantalles[pantallaActiva]->totalMenuItems == 0) return;// safe
+    
+    selectedMenuItem = 0;
+    this->clearScreen();
+    this->cUP(1,1);
+    std::cout << this->pantalles[pantallaActiva]->titol << std::flush;
+    for(int i=0;i< this->pantalles[pantallaActiva]->totalMenuItems;i++){
+        this->cUP(2+i,1);
+        std::cout << '-'<< pantalles[pantallaActiva]->menuItems[i]->text << std::flush;
+    }
+    selectedMenuItem =0;
+    cUP(2,1);
+}
+
+void menu::cUP(int line,int column){// Cursor Position
+    this->userTty->indexllistaNumeros = 2;
+    this->userTty->llistaNumeros[0] = line;
+    this->userTty->llistaNumeros[1] = column;
+    this->userTty->cUP(this->userTty->indexllistaNumeros,this->userTty->llistaNumeros);
+}
+void menu::clearScreen(){// gives tty command
+    this->userTty->indexllistaNumeros = 1;
+    this->userTty->llistaNumeros[0] = 2;
+    this->userTty->eD(this->userTty->indexllistaNumeros,this->userTty->llistaNumeros);
+}
+void menu::cUU(unsigned int argc,int *argv){// keyUp
+    if(selectedMenuItem < 1)return;
+    selectedMenuItem--;
+    cUP(2+selectedMenuItem,1);
+}
+void menu::cUD(unsigned int argc,int *argv){// keyDn
+    if(selectedMenuItem >= (this->pantalles[pantallaActiva]->totalMenuItems-1))return;
+    selectedMenuItem++;
+    cUP(2+selectedMenuItem,1);
+}
+void menu::cr(){
+    this->clearScreen();
+    pantalles[pantallaActiva]->menuItems[selectedMenuItem]->run();
+    
+    while(this->userTty->available() == 0){}
+    charTmp = userTty->read();
+    
+    this->show();
+}
+void menu::addPantalla(pantalla* screen){
+    if(totalPantalles == maxOpcionsMenu)return;
+    pantalles[totalPantalles] = screen;
+    totalPantalles+=1;
+    if(totalPantalles == 1)pantallaActiva = 0;
+}
+void menu::run(){
+    if(this->userTty->available() != 0){
+        charTmp = userTty->read();
+        this->doGuess(charTmp);
+        if(charTmp == 'q')this->exit = true;
+    }
+}
+

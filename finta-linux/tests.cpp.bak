@@ -1,0 +1,29 @@
+#include <fstream>
+
+class Base {
+public:
+    typedef void(Base::*func)();
+    func f;
+    virtual void A() { }
+    virtual int B() { return 0; }
+    virtual int C() { return 0; }
+    Base() {};
+    void run()
+    {
+        (this->*f)();
+    }
+};
+
+ class Child: public Base {
+     public:
+     void A() {
+        std::cout << "adeu" << std::flush;    
+     }
+     int B() { return 2; }
+     int C() { return 3; }
+     Child()
+     {
+         f = &Base::A;
+    }
+};
+Child test1 = Child();
